@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie List</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f0f0f0; }
+        h1 { text-align: center; }
+        .container { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 20px; 
+            justify-content: center; 
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            width: 200px;
+            padding: 10px;
+            text-align: center;
+        }
+        .card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .card h3 { font-size: 1rem; margin: 10px 0; }
+    </style>
+</head>
+<body>
+
+    <h1>Daftar Film Bioskop</h1>
+    <div class="container" id="movie-list">
+        <p>Loading movies...</p>
+    </div>
+
+    <script>
+        // --- PERBAIKAN 1: GANTI PORT JADI 8000 ---
+        const API_URL = 'http://localhost:8000/movies'; 
+
+        async function fetchMovies() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error('Gagal mengambil data');
+                }
+                const movies = await response.json();
+                displayMovies(movies);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('movie-list').innerHTML = '<p style="color:red">Gagal memuat data API. Pastikan Backend sudah jalan.</p>';
+            }
+        }
+
+        function displayMovies(movies) {
+            const container = document.getElementById('movie-list');
+            container.innerHTML = ''; 
+
+            movies.forEach(movie => {
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                const title = movie.title || "No Title"; 
+                
+                // --- PERBAIKAN 2: GANTI JADI poster_path SESUAI DATABASE ---
+                // Cek apakah pakai 'poster_path' (MySQL) atau 'poster' (API lain)
+                const poster = movie.poster_path || movie.poster || "https://via.placeholder.com/200x300?text=No+Poster"; 
+                
+                card.innerHTML = `
+                    <img src="${poster}" alt="${title}">
+                    <h3>${title}</h3>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        fetchMovies();
+    </script>
+</body>
+</html>
